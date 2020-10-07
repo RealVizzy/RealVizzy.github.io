@@ -1,29 +1,38 @@
 html {
     background-color: #CD0000;
+    cursor: default;
+}
+
+::selection {
+    all:inherit;
+    color: #CD0000;
 }
 
 body {
+    all: inherit;
     font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
     min-width: 256px;
     max-width: 1024px;
     margin-left: auto;
     margin-right: auto;
     background-color: white;
+    padding-bottom: 16px;
 }
 
 .main {
+    all: inherit;
     padding-left: 32px;
     padding-right: 32px;
     padding-top: 16px;
-    padding-bottom: 16px;
-    margin-bottom: 10pt;
+    padding-bottom: 0;
+    margin-bottom: 2.5pt;
 }
 
 .section {
+    all: inherit;
     counter-increment: section;
     font-size: 14pt;
     text-indent: 50px;
-    margin: inherit;
 }
 
 .section::before {
@@ -32,19 +41,19 @@ body {
 }
 
 .header {
+    all: inherit;
     font-size: 24pt;
     font-weight: bold;
     text-align: center;
-    margin: inherit;
 }
 
 .article {
+    all: inherit;
     counter-reset: section;
     counter-increment: article;
     font-size: 18pt;
     font-weight: bold;
     text-align: center;
-    margin: inherit;
 }
 
 .article::before {
@@ -52,8 +61,22 @@ body {
 }
 
 img {
+    all: inherit;
     width: 250px;
     display: block;
     margin-left: auto;
     margin-right: auto;
+}
+
+.link {
+    all: inherit;
+    color: #CD0000;
+    font-weight: bold;
+    font-size: 18pt;
+    text-align: center;
+}
+
+.link:hover {
+    cursor: pointer;
+    text-decoration: underline;
 }
