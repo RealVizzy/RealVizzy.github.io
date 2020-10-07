@@ -1,6 +1,5 @@
 html {
     cursor: default;
-    text-size-adjust: none;
 }
 
 ::selection {
@@ -28,7 +27,7 @@ body {
 .section {
     all: inherit;
     counter-increment: section;
-    font-size: 1em;
+    font-size: medium;
     text-indent: 5%;
 }
 
@@ -39,7 +38,7 @@ body {
 
 .header {
     all: inherit;
-    font-size: 2em;
+    font-size: larger;
     font-weight: bold;
     text-align: center;
 }
@@ -48,7 +47,7 @@ body {
     all: inherit;
     counter-reset: section;
     counter-increment: article;
-    font-size: 1.5em;
+    font-size: large;
     font-weight: bold;
     text-align: center;
 }
@@ -70,7 +69,7 @@ img {
     all: inherit;
     color: #CD0000;
     font-weight: bold;
-    font-size: 1em;
+    font-size: large;
     text-align: center;
 }
 
