@@ -1,5 +1,5 @@
 html {
-    background-color: #CD0000;
+    background-color: white;
     cursor: default;
 }
 
@@ -11,8 +11,10 @@ html {
 body {
     all: inherit;
     font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
-    background-color: white;
-    padding-bottom: 1rem;
+    /*max-width: 1024px;
+    margin-left: auto;
+    margin-right: auto;*/
+    padding-bottom: 1em;
 }
 
 .main {
@@ -21,18 +23,18 @@ body {
     max-width: unset;
     background-color: transparent;
     margin: unset;
-    padding-left: 2rem;
-    padding-right: 2rem;
-    padding-top: 1rem;
+    padding-left: 2em;
+    padding-right: 2em;
+    padding-top: 1em;
     padding-bottom: 0;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.5em;
 }
 
 .section {
     all: inherit;
     counter-increment: section;
-    font-size: 1rem;
-    text-indent: 3rem;
+    font-size: 1em;
+    text-indent: 3em;
 }
 
 .section::before {
@@ -42,7 +44,7 @@ body {
 
 .header {
     all: inherit;
-    font-size: 2.25rem;
+    font-size: 2.25em;
     font-weight: bold;
     text-align: center;
 }
@@ -51,7 +53,7 @@ body {
     all: inherit;
     counter-reset: section;
     counter-increment: article;
-    font-size: 1.5rem;
+    font-size: 1.5em;
     font-weight: bold;
     text-align: center;
 }
@@ -73,7 +75,7 @@ img {
     all: inherit;
     color: #CD0000;
     font-weight: bold;
-    font-size: 1.5rem;
+    font-size: 1.5em;
     text-align: center;
 }
 
