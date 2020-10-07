@@ -1,5 +1,5 @@
 html {
-    background-color: white;
+    background-color: #CD0000;
     cursor: default;
 }
 
@@ -12,10 +12,11 @@ body {
     all: inherit;
     font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
     max-width: 1024px;
-    min-width: 1024px;
+    min-width: 256px;
     margin-left: auto;
     margin-right: auto;
     padding-bottom: 1rem;
+    background-color: white;
 }
 
 .main {
@@ -66,7 +67,7 @@ body {
 img {
     all: inherit;
     max-height: 128px;
-    height: 20vw;
+    height: 20%;
     display: block;
     margin-left: auto;
     margin-right: auto;
