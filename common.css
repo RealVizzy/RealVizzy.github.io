@@ -35,7 +35,7 @@ body {
 .section {
     all: inherit;
     counter-increment: section;
-    font-size: 12px;
+    font-size: 16px;
     text-indent: 12px;
 }
 
@@ -46,7 +46,7 @@ body {
 
 .header {
     all: inherit;
-    font-size: 18px;
+    font-size: 24px;
     font-weight: bold;
     text-align: center;
 }
@@ -55,7 +55,7 @@ body {
     all: inherit;
     counter-reset: section;
     counter-increment: article;
-    font-size: 16px;
+    font-size: 18px;
     font-weight: bold;
     text-align: center;
 }
@@ -77,7 +77,7 @@ img {
     all: inherit;
     color: #CD0000;
     font-weight: bold;
-    font-size: 16px;
+    font-size: 18px;
     text-align: center;
 }
 
