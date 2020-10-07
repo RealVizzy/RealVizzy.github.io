@@ -8,7 +8,7 @@ html {
     color: #CD0000;
 }
 
-@media (max-width: 600px) {
+@media (min-width: 600px) {
     body {
         all: inherit;
         font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
