@@ -11,10 +11,11 @@ html {
 body {
     all: inherit;
     font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
-    /*max-width: 1024px;
+    max-width: 1024px;
+    min-width: 1024px;
     margin-left: auto;
-    margin-right: auto;*/
-    padding-bottom: 1em;
+    margin-right: auto;
+    padding-bottom: 1rem;
 }
 
 .main {
@@ -23,18 +24,18 @@ body {
     max-width: unset;
     background-color: transparent;
     margin: unset;
-    padding-left: 2em;
-    padding-right: 2em;
-    padding-top: 1em;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    padding-top: 1rem;
     padding-bottom: 0;
-    margin-bottom: 0.5em;
+    margin-bottom: 0.5rem;
 }
 
 .section {
     all: inherit;
     counter-increment: section;
-    font-size: 1em;
-    text-indent: 3em;
+    font-size: 1rem;
+    text-indent: 3rem;
 }
 
 .section::before {
@@ -44,7 +45,7 @@ body {
 
 .header {
     all: inherit;
-    font-size: 2.25em;
+    font-size: 2.25rem;
     font-weight: bold;
     text-align: center;
 }
@@ -53,7 +54,7 @@ body {
     all: inherit;
     counter-reset: section;
     counter-increment: article;
-    font-size: 1.5em;
+    font-size: 1.5rem;
     font-weight: bold;
     text-align: center;
 }
@@ -75,7 +76,7 @@ img {
     all: inherit;
     color: #CD0000;
     font-weight: bold;
-    font-size: 1.5em;
+    font-size: 1.5rem;
     text-align: center;
 }
 
