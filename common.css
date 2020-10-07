@@ -1,5 +1,6 @@
 html {
     cursor: default;
+    text-size-adjust: none;
 }
 
 ::selection {
