@@ -40,7 +40,6 @@
         content: "Article "counter(article, upper-roman) " - ";
     }
 </style>
-<!DOCTYPE html>
 <html>
 
 <body>
