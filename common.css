@@ -21,6 +21,9 @@ body {
 
 .main {
     all: inherit;
+    min-width: unset;
+    max-width: unset;
+    background-color: transparent;
     padding-left: 32px;
     padding-right: 32px;
     padding-top: 16px;
