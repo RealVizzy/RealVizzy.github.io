@@ -31,6 +31,13 @@ body {
     text-indent: 5%;
 }
 
+.section2 {
+    all: inherit;
+    counter-increment: section;
+    font-size: medium;
+    text-indent: 5%;
+}
+
 .section::before {
     content: "Section "counter(section) ". ";
     font-weight: bold;
@@ -50,6 +57,28 @@ body {
     font-size: large;
     font-weight: bold;
     text-align: center;
+}
+
+.article2 {
+    all: inherit;
+    counter-reset: section;
+    counter-increment: article;
+    font-size: large;
+    font-weight: bold;
+    text-align: center;
+}
+
+.chapter {
+    all: inherit;
+    counter-reset: article;
+    counter-increment: chapter;
+    font-size: large;
+    font-weight: bold;
+    text-align: center;
+}
+
+.chapter::before {
+    content: "Chapter "counter(chapter, upper-roman) " - ";
 }
 
 .article::before {
