@@ -68,19 +68,6 @@ body {
     text-align: center;
 }
 
-.chapter {
-    all: inherit;
-    counter-reset: article;
-    counter-increment: chapter;
-    font-size: large;
-    font-weight: bold;
-    text-align: center;
-}
-
-.chapter::before {
-    content: "Chapter "counter(chapter, upper-roman) " - ";
-}
-
 .article::before {
     content: "Article "counter(article, upper-roman) " - ";
 }
