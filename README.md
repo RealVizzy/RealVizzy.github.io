@@ -1,2 +1,1 @@
-# theghostofinky.github.io
-Ideosorter
+# Starvation Counter
