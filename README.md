@@ -1,2 +1,0 @@
-# theghostofinky.github.io
-Ideosorter
