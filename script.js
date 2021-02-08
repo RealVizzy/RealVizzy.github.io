@@ -2,7 +2,7 @@ starveDay = 25000 //Source : https://www.un.org/en/chronicle/article/losing-2500
 starveDate = new Date("2010")
 
 starveYear = starveDay*365
-starveYearGrowth = 1.01
+starveYearGrowth = 1.012 //Population Growth
 
 var start = Date.now();
 
