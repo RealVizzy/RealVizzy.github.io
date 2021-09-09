@@ -36,55 +36,67 @@
         }
 
         function requestMessages() {
-            MediaWikiJS(url, { action: 'query', list: "logevents", leaction: 'comments/add' }, function (data) {
-                messages = data.query.logevents
-                showMessages()
-                i = Math.round(Date.now() / 1000)
-                clearInterval(timer)
-                timer = setInterval(timedRequestMessages, 5000)
-            })
+            try {
+                MediaWikiJS(url, { action: 'query', list: "logevents", leaction: 'comments/add' }, function (data) {
+                    messages = data.query.logevents
+                    showMessages()
+                    i = Math.round(Date.now() / 1000)
+                    clearInterval(timer)
+                    timer = setInterval(timedRequestMessages, 5000)
+                })
+            } catch (e) {
+                alert("an error occurred")
+            }
         }
 
         function timedRequestMessages() {
-            MediaWikiJS(url, { action: 'query', list: "logevents", leaction: 'comments/add', lestart: i, ledir: "newer" }, function (data) {
-                messages = data.query.logevents
-                showMessages()
-                i = Math.round(Date.now() / 1000)
-                console.log("refreshed")
-            })
+            try {
+                MediaWikiJS(url, { action: 'query', list: "logevents", leaction: 'comments/add', lestart: i, ledir: "newer" }, function (data) {
+                    messages = data.query.logevents
+                    showMessages()
+                    i = Math.round(Date.now() / 1000)
+                    console.log("refreshed")
+                })
+            } catch (e) {
+                alert("an error occurred")
+            }
         }
 
         function showMessages() {
-            for (const msg of messages) {
-                var cmnt = document.createElement("tr")
+            try {
+                for (const msg of messages) {
+                    var cmnt = document.createElement("tr")
 
-                var cmntChild = document.createElement("th")
-                cmntChild.innerText = `${new Date(msg.timestamp).getHours().toString().padStart(2, "0")}:${new Date(msg.timestamp).getMinutes().toString().padStart(2, "0")}:${new Date(msg.timestamp).getSeconds().toString().padStart(2, "0")}`
-                cmnt.appendChild(cmntChild)
+                    var cmntChild = document.createElement("th")
+                    cmntChild.innerText = `${new Date(msg.timestamp).getHours().toString().padStart(2, "0")}:${new Date(msg.timestamp).getMinutes().toString().padStart(2, "0")}:${new Date(msg.timestamp).getSeconds().toString().padStart(2, "0")}`
+                    cmnt.appendChild(cmntChild)
 
-                var cmntChild = document.createElement("th")
-                var cmntChildChild = document.createElement("a")
-                cmntChildChild.href = `${url}wiki/${msg.title.replace(" ", "_")}#comment-${msg.params.commentid}`
-                cmntChildChild.innerText = `${msg.comment}`
-                cmntChild.appendChild(cmntChildChild)
-                cmnt.appendChild(cmntChild)
+                    var cmntChild = document.createElement("th")
+                    var cmntChildChild = document.createElement("a")
+                    cmntChildChild.href = `${url}wiki/${msg.title.replace(" ", "_")}#comment-${msg.params.commentid}`
+                    cmntChildChild.innerText = `${msg.comment}`
+                    cmntChild.appendChild(cmntChildChild)
+                    cmnt.appendChild(cmntChild)
 
-                var cmntChild = document.createElement("th")
-                var cmntChildChild = document.createElement("a")
-                cmntChildChild.href = `${url}wiki/User:${msg.title.replace(" ", "_")}`
-                cmntChildChild.innerText = `${msg.user}`
-                cmntChild.appendChild(cmntChildChild)
-                cmnt.appendChild(cmntChild)
+                    var cmntChild = document.createElement("th")
+                    var cmntChildChild = document.createElement("a")
+                    cmntChildChild.href = `${url}wiki/User:${msg.title.replace(" ", "_")}`
+                    cmntChildChild.innerText = `${msg.user}`
+                    cmntChild.appendChild(cmntChildChild)
+                    cmnt.appendChild(cmntChild)
 
-                var cmntChild = document.createElement("th")
-                var cmntChildChild = document.createElement("a")
-                cmntChildChild.href = `${url}wiki/${msg.title.replace(" ", "_")}`
-                cmntChildChild.innerText = `${msg.title}`
-                cmntChild.appendChild(cmntChildChild)
-                cmnt.appendChild(cmntChild)
+                    var cmntChild = document.createElement("th")
+                    var cmntChildChild = document.createElement("a")
+                    cmntChildChild.href = `${url}wiki/${msg.title.replace(" ", "_")}`
+                    cmntChildChild.innerText = `${msg.title}`
+                    cmntChild.appendChild(cmntChildChild)
+                    cmnt.appendChild(cmntChild)
 
-                messageTable.appendChild(cmnt)
-                messages.splice(-1)
+                    messageTable.appendChild(cmnt)
+                    messages.splice(-1)
+                }
+            } catch (e) {
+                alert("an error occurred")
             }
         }
     </script>
