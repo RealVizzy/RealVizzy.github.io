@@ -51,7 +51,7 @@
 
         function timedRequestMessages() {
             try {
-                MediaWikiJS(url, { action: 'query', list: "logevents", leaction: 'comments/add', lestart: i, ledir: "newer" }, function (data) {
+                MediaWikiJS(url, { action: 'query', list: "logevents", leaction: 'comments/add', lestart: i, ledir: "newer", lelimit: "max" }, function (data) {
                     messages = data.query.logevents
                     showMessages()
                     i = Math.round(Date.now() / 1000)
