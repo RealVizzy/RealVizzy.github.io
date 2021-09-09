@@ -22,7 +22,7 @@
     </table>
     <script src="MediawikiJS.js"></script>
     <script>
-        var url, messages, i
+        var url, messages, i, timer
 
         var messageTable = document.getElementById("messageTable")
         var messageTableOrigin = messageTable.innerHTML
@@ -40,7 +40,8 @@
                 messages = data.query.logevents
                 showMessages()
                 i = Math.round(Date.now() / 1000)
-                timedRequestMessages()
+                clearInterval(timer)
+                timer = setInterval(timedRequestMessages, 5000)
             })
         }
 
@@ -50,7 +51,6 @@
                 showMessages()
                 i = Math.round(Date.now() / 1000)
                 console.log("refreshed")
-                setTimeout(timedRequestMessages, 5000)
             })
         }
 
