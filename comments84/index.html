@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Comment Watch</title>
+</head>
+
+<body>
+    <input value="https://polcompball.miraheze.org/" id="url"
+        placeholder="url, eg. https://polcompball.miraheze.org/" />
+    <button onclick="init()">Confirm</button>
+    <table>
+        <tbody id="messageTable">
+            <tr>
+                <th>Time</th>
+                <th>Message</th>
+                <th>Author</th>
+                <th>Page</th>
+            </tr>
+        </tbody>
+    </table>
+    <script src="MediawikiJS.js"></script>
+    <script>
+        var url, messages, i
+
+        var messageTable = document.getElementById("messageTable")
+        var messageTableOrigin = messageTable.innerHTML
+
+        function init() {
+            url = document.getElementById("url").value
+
+            messageTable.innerHTML = messageTableOrigin
+
+            requestMessages()
+        }
+
+        function requestMessages() {
+            MediaWikiJS(url, { action: 'query', list: "logevents", leaction: 'comments/add' }, function (data) {
+                messages = data.query.logevents
+                showMessages()
+                i = Math.round(Date.now() / 1000)
+                timedRequestMessages()
+            })
+        }
+
+        function timedRequestMessages() {
+            MediaWikiJS(url, { action: 'query', list: "logevents", leaction: 'comments/add', lestart: i, ledir: "newer" }, function (data) {
+                messages = data.query.logevents
+                showMessages()
+                i = Math.round(Date.now() / 1000)
+                setTimeout(timedRequestMessages, 5000)
+            })
+        }
+
+        function showMessages() {
+            for (const msg of messages) {
+                console.log(msg)
+                var cmnt = document.createElement("tr")
+
+                var cmntChild = document.createElement("th")
+                cmntChild.innerText = `${new Date(msg.timestamp).getHours().toString().padStart(2, "0")}:${new Date(msg.timestamp).getMinutes().toString().padStart(2, "0")}:${new Date(msg.timestamp).getSeconds().toString().padStart(2, "0")}`
+                cmnt.appendChild(cmntChild)
+
+                var cmntChild = document.createElement("th")
+                var cmntChildChild = document.createElement("a")
+                cmntChildChild.href = `${url}wiki/${msg.title.replace(" ", "_")}#comment-${msg.params.commentid}`
+                cmntChildChild.innerText = `${msg.comment}`
+                cmntChild.appendChild(cmntChildChild)
+                cmnt.appendChild(cmntChild)
+
+                var cmntChild = document.createElement("th")
+                var cmntChildChild = document.createElement("a")
+                cmntChildChild.href = `${url}wiki/User:${msg.title.replace(" ", "_")}`
+                cmntChildChild.innerText = `${msg.user}`
+                cmntChild.appendChild(cmntChildChild)
+                cmnt.appendChild(cmntChild)
+
+                var cmntChild = document.createElement("th")
+                var cmntChildChild = document.createElement("a")
+                cmntChildChild.href = `${url}wiki/${msg.title.replace(" ", "_")}`
+                cmntChildChild.innerText = `${msg.title}`
+                cmntChild.appendChild(cmntChildChild)
+                cmnt.appendChild(cmntChild)
+
+                messageTable.appendChild(cmnt)
+                messages.splice(-1)
+            }
+        }
+    </script>
+</body>
+
+</html>
