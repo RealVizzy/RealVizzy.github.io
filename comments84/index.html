@@ -49,13 +49,13 @@
                 messages = data.query.logevents
                 showMessages()
                 i = Math.round(Date.now() / 1000)
+                console.log("refreshed")
                 setTimeout(timedRequestMessages, 5000)
             })
         }
 
         function showMessages() {
             for (const msg of messages) {
-                console.log(msg)
                 var cmnt = document.createElement("tr")
 
                 var cmntChild = document.createElement("th")
