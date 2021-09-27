@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Base Preview</title>
+	</head>
+	<body>
+		<div id="elem"></div>
+		<script>
+			var arr = new Uint32Array(1)
+			window.crypto.getRandomValues(arr)
+
+			function getDigitRep(number) {
+				if (number < 10) {
+					return number.toString()
+				} else if (number < 36) {
+					return String.fromCharCode(number + 87)
+				} else if (number < 36) {
+					return String.fromCharCode(number + 87)
+				} else if (number < 62) {
+					return String.fromCharCode(number + 29)
+				} else {
+					switch (number) {
+						case 62:
+							return "+"
+							break
+						case 63:
+							return "/"
+							break
+						default:
+							return "*"
+							break
+					}
+				}
+			}
+
+			function getBase(number, base) {
+				var i = number
+				var newNum = ""
+
+				while (i != 0) {
+					r = i % base
+					newNum = getDigitRep(r) + newNum
+					i = (i - r) / base
+				}
+
+				return newNum
+			}
+
+			var elementStuff = ``
+
+			for (let i = 2; i < 64; i++) {
+				elementStuff += `<p>Base${i} ${getBase(arr[0], i)}</p>`
+			}
+
+			document.getElementById("elem").innerHTML = elementStuff
+		</script>
+	</body>
+</html>
