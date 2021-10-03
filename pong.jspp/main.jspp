@@ -1,0 +1,262 @@
+import System;
+import Externals.DOM;
+
+Dictionary<string> params = {};
+
+window.location.search.slice(1).split("&").forEach(void (string item) {
+	params[(string)(item.split("=")[0] ?? "n")] = item.split("=")[1] ?? "";
+});
+
+final int TICKS_PER_SECOND = +(string)(params["ticks"] ?? "60");
+final int SPEED = +(string)(params["speed"] ?? "90");
+final bool AI = !params.contains("noai");
+final bool RAINBOW = params.contains("r");
+final double MAXBOUNCEANGLE = 3*Math.PI/12;
+
+bool towards = false;
+
+int score1 = 0;
+int score2 = 0;
+
+class Vec2 {
+	public double x;
+	public double y;
+
+	public Vec2(double x, double y) {
+		this.x = x;
+		this.y = y;
+	}
+}
+
+class PhysicsObject {
+	public Vec2 pos = new Vec2(0,0);
+
+	public Vec2 dim = new Vec2(2.5d,10d);
+
+	public Vec2 vel = new Vec2(0d,0d);
+
+	public bool bounce = false;
+
+	public PhysicsObject(double x, double y, double w, double h) {
+		this.pos.x = x;
+		this.pos.y = y;
+
+		this.dim.x = w;
+		this.dim.y = h;
+	}
+
+	public PhysicsObject(double x, double y, double w, double h, bool bounce) {
+		this.pos.x = x;
+		this.pos.y = y;
+
+		this.dim.x = w;
+		this.dim.y = h;
+
+		this.bounce = bounce;
+	}
+	
+	public PhysicsObject() {}
+
+	public Vec2 screenSpaceCords() {
+		Vec2 outVec2 = new Vec2(0,0);
+		outVec2.x = this.pos.x + 50d - this.dim.x / 2;
+		outVec2.y = this.pos.y + 50d - this.dim.y / 2;
+		return outVec2;
+	}
+}
+
+class PhysicScene {
+	public PhysicsObject[] objects = [];
+
+	public PhysicScene(...PhysicsObject objs) {
+		foreach(PhysicsObject head in objs) {
+			objects.push(head);
+		}
+	}
+
+	public void tick() {
+		main: for(int index1 in this.objects) {
+			PhysicsObject head = this.objects[index1] ?? new PhysicsObject();
+
+			for(int index2 in this.objects) {
+				if(index1 != index2) {
+					PhysicsObject item = this.objects[index2] ?? new PhysicsObject();
+					if(Math.abs((head.pos.x + head.vel.x / TICKS_PER_SECOND) - (item.pos.x + item.vel.x / TICKS_PER_SECOND)) < (head.dim.x / 2 + item.dim.x / 2)
+					&& Math.abs((head.pos.y + head.vel.y / TICKS_PER_SECOND) - (item.pos.y + item.vel.y / TICKS_PER_SECOND)) < (head.dim.y / 2 + item.dim.y / 2)) {
+						if(head.bounce) {
+							double relativeIntersectY = ((item.pos.y + item.vel.y / TICKS_PER_SECOND) + (item.dim.y/2)) - (head.pos.y + head.vel.y / TICKS_PER_SECOND);
+							double normalizedRelativeIntersectionY = (relativeIntersectY - (item.dim.y/2))/(item.dim.y/2);
+							double bounceAngle = (normalizedRelativeIntersectionY * MAXBOUNCEANGLE);
+
+							towards = !towards;
+
+							head.vel.x = (towards ? -1 : 1)*SPEED*Math.cos(bounceAngle);
+							head.vel.y = SPEED*-Math.sin(bounceAngle);
+						} else {
+							continue main;
+						}
+					}
+				}
+			}
+
+			head.pos.x = head.pos.x + head.vel.x / TICKS_PER_SECOND;
+
+			if (head.pos.y - head.dim.y / 2 + head.vel.y / TICKS_PER_SECOND > -50
+			&& head.pos.y + head.dim.y / 2 + head.vel.y / TICKS_PER_SECOND < 50) {
+				head.pos.y = head.pos.y + head.vel.y / TICKS_PER_SECOND;
+			}
+		}
+	}
+}
+
+class Player {
+	public PhysicsObject physicsObject = new PhysicsObject(0d, 0d, 2.5d, 10d);
+
+	public Player(double x) {
+		this.physicsObject.pos.x = x;
+	}
+}
+
+class Ball {
+	public PhysicsObject physicsObject = new PhysicsObject(0d, 0d, 2.5d, 2.5d, true);
+
+	public Ball() {
+		towards = (bool) (int) Math.floor(Math.random() * 2);
+		this.reset();
+	}
+
+	public void reset() {
+		physicsObject.vel.x = ((towards ? 1 : 0) - 0.5) * SPEED;
+		physicsObject.vel.y = (Math.floor(Math.random() * 2) - 0.5) * SPEED;
+
+		this.physicsObject.pos.x = 0;
+		this.physicsObject.pos.y = 0;
+	}
+
+	public void tick() {
+		if(this.physicsObject.pos.x + this.physicsObject.dim.x / 2 + this.physicsObject.vel.x / TICKS_PER_SECOND > 50
+		|| this.physicsObject.pos.x - this.physicsObject.dim.x / 2 + this.physicsObject.vel.x / TICKS_PER_SECOND < -50) {
+			this.reset();
+			if (towards) {
+				score2++;
+			} else {
+				score1++;
+			}
+			towards = !towards;
+		}
+
+		if(this.physicsObject.pos.y + this.physicsObject.dim.y / 2 + this.physicsObject.vel.y / TICKS_PER_SECOND > 50
+		|| this.physicsObject.pos.y - this.physicsObject.dim.y / 2 + this.physicsObject.vel.y / TICKS_PER_SECOND < -50) {
+			this.physicsObject.vel.y = this.physicsObject.vel.y * -1;
+		}
+	}
+}
+
+Player player1 = new Player(-40d);
+Player player2 = new Player(40d);
+Ball ball = new Ball();
+
+PhysicScene physicScene = new PhysicScene(player1.physicsObject, player2.physicsObject, ball.physicsObject);
+
+void keyDown(external event) {
+	switch (event.key.toLowerCase()) {
+		case "arrowup":
+			player1.physicsObject.vel.y = -SPEED;
+			break;
+		case "arrowdown":
+			player1.physicsObject.vel.y = SPEED;
+			break;
+		case "w":
+			if(!AI) {
+				player2.physicsObject.vel.y = -SPEED;
+			}
+			break;
+		case "s":
+			if(!AI) {
+				player2.physicsObject.vel.y = SPEED;
+			}
+			break;
+	}
+}
+
+void keyUp(external event) {
+	switch (event.key.toLowerCase()) {
+		case "arrowup":
+			if(player1.physicsObject.vel.y < 0) {
+				player1.physicsObject.vel.y = 0;
+			}
+			break;
+		case "arrowdown":
+			if(player1.physicsObject.vel.y > 0) {
+				player1.physicsObject.vel.y = 0;
+			}
+			break;
+		case "w":
+			if(player2.physicsObject.vel.y < 0 && !AI) {
+				player2.physicsObject.vel.y = 0;
+			}
+			break;
+		case "s":
+			if(player2.physicsObject.vel.y > 0 && !AI) {
+				player2.physicsObject.vel.y = 0;
+			}
+			break;
+	}
+}
+
+string frame = "";
+for(int index in physicScene.objects) {
+	PhysicsObject obj = physicScene.objects[index] ?? new PhysicsObject();
+	frame += "<div class=\"" + (obj.bounce ? "ball" : "player") + "\" id=\"obj" + index.toString() + "\"></div>";
+}
+frame += "<div class=\"score\" id=\"s1\">" + score1.toString() + "</div>";
+frame += "<div class=\"score\" id=\"s2\">" + score2.toString() + "</div>";
+document.body.innerHTML = frame;
+
+if(RAINBOW) {
+	document.getElementById("obj0").classList.add("rainbow");
+	document.getElementById("obj1").classList.add("rainbow");
+	document.getElementById("obj2").classList.add("rainbow");
+	document.getElementById("s1").classList.add("rainbow");
+	document.getElementById("s2").classList.add("rainbow");
+}
+
+void tick() {
+	if (AI) {
+		if ((Math.abs(ball.physicsObject.pos.y - player2.physicsObject.pos.y) >  player2.physicsObject.dim.y / 2)) {
+			if (ball.physicsObject.pos.y > player2.physicsObject.pos.y) {
+				player2.physicsObject.vel.y = SPEED;
+			} else if (ball.physicsObject.pos.y < player2.physicsObject.pos.y) {
+				player2.physicsObject.vel.y = -SPEED;
+			}
+		} else {
+			player2.physicsObject.vel.y = 0;
+		}
+	}
+
+	physicScene.tick();
+	ball.tick();
+
+	document.getElementById("obj0").style.left = player1.physicsObject.screenSpaceCords().x.toString() + "%";
+	document.getElementById("obj0").style.top = player1.physicsObject.screenSpaceCords().y.toString() + "%";
+	document.getElementById("obj0").style.width = player1.physicsObject.dim.x.toString() + "%";
+	document.getElementById("obj0").style.height = player1.physicsObject.dim.y.toString() + "%";
+	
+	document.getElementById("obj1").style.left = player2.physicsObject.screenSpaceCords().x.toString() + "%";
+	document.getElementById("obj1").style.top = player2.physicsObject.screenSpaceCords().y.toString() + "%";
+	document.getElementById("obj1").style.width = player2.physicsObject.dim.x.toString() + "%";
+	document.getElementById("obj1").style.height = player2.physicsObject.dim.y.toString() + "%";
+
+	document.getElementById("obj2").style.left = ball.physicsObject.screenSpaceCords().x.toString() + "%";
+	document.getElementById("obj2").style.top = ball.physicsObject.screenSpaceCords().y.toString() + "%";
+	document.getElementById("obj2").style.width = ball.physicsObject.dim.x.toString() + "%";
+	document.getElementById("obj2").style.height = ball.physicsObject.dim.y.toString() + "%";
+
+	document.getElementById("s1").innerText = score1.toString();
+	document.getElementById("s2").innerText = score2.toString();
+}
+
+document.body.addEventListener("keydown", keyDown);
+document.body.addEventListener("keyup", keyUp);
+
+setInterval(tick, 1000 / TICKS_PER_SECOND);
