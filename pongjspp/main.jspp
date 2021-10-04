@@ -12,6 +12,7 @@ final int SPEED = +(string)(params["speed"] ?? "90");
 final int TIME = +(string)(params["time"] ?? "1");
 final bool AI = !params.contains("noai");
 final bool RAINBOW = params.contains("r");
+final bool CANVAS = params.contains("c");
 final double MAXBOUNCEANGLE = 3*Math.PI/12;
 
 bool towards = false;
@@ -206,20 +207,34 @@ void keyUp(external event) {
 }
 
 string frame = "";
-for(int index in physicScene.objects) {
-	PhysicsObject obj = physicScene.objects[index] ?? new PhysicsObject();
-	frame += "<div class=\"" + (obj.bounce ? "ball" : "player") + "\" id=\"obj" + index.toString() + "\"></div>";
+
+if(!CANVAS) {
+	for(int index in physicScene.objects) {
+		PhysicsObject obj = physicScene.objects[index] ?? new PhysicsObject();
+		frame += "<div class=\"" + (obj.bounce ? "ball" : "player") + "\" id=\"obj" + index.toString() + "\"></div>";
+	}
+	frame += "<div class=\"score\" id=\"s1\">" + score1.toString() + "</div>";
+	frame += "<div class=\"score\" id=\"s2\">" + score2.toString() + "</div>";
+} else {
+	frame = "<img src=\"\" id=\"mainCanvas\"></img>";
 }
-frame += "<div class=\"score\" id=\"s1\">" + score1.toString() + "</div>";
-frame += "<div class=\"score\" id=\"s2\">" + score2.toString() + "</div>";
+
 document.body.innerHTML = frame;
 
-if(RAINBOW) {
-	document.getElementById("obj0").classList.add("rainbow");
-	document.getElementById("obj1").classList.add("rainbow");
-	document.getElementById("obj2").classList.add("rainbow");
-	document.getElementById("s1").classList.add("rainbow");
-	document.getElementById("s2").classList.add("rainbow");
+var obj0 = document.getElementById("obj0");
+var obj1 = document.getElementById("obj1");
+var obj2 = document.getElementById("obj2");
+var s1 = document.getElementById("s1");
+var s2 = document.getElementById("s2");
+
+if(!CANVAS) {
+	if(RAINBOW) {
+		obj0.classList.add("rainbow");
+		obj1.classList.add("rainbow");
+		obj2.classList.add("rainbow");
+		s1.classList.add("rainbow");
+		s2.classList.add("rainbow");
+	}
 }
 
 void tick() {
@@ -238,23 +253,25 @@ void tick() {
 	physicScene.tick();
 	ball.tick();
 
-	document.getElementById("obj0").style.left = player1.physicsObject.screenSpaceCords().x.toString() + "%";
-	document.getElementById("obj0").style.top = player1.physicsObject.screenSpaceCords().y.toString() + "%";
-	document.getElementById("obj0").style.width = player1.physicsObject.dim.x.toString() + "%";
-	document.getElementById("obj0").style.height = player1.physicsObject.dim.y.toString() + "%";
-	
-	document.getElementById("obj1").style.left = player2.physicsObject.screenSpaceCords().x.toString() + "%";
-	document.getElementById("obj1").style.top = player2.physicsObject.screenSpaceCords().y.toString() + "%";
-	document.getElementById("obj1").style.width = player2.physicsObject.dim.x.toString() + "%";
-	document.getElementById("obj1").style.height = player2.physicsObject.dim.y.toString() + "%";
+	if(!CANVAS) {
+		obj0.style.left = player1.physicsObject.screenSpaceCords().x.toString() + "%";
+		obj0.style.top = player1.physicsObject.screenSpaceCords().y.toString() + "%";
+		obj0.style.width = player1.physicsObject.dim.x.toString() + "%";
+		obj0.style.height = player1.physicsObject.dim.y.toString() + "%";
+		
+		obj1.style.left = player2.physicsObject.screenSpaceCords().x.toString() + "%";
+		obj1.style.top = player2.physicsObject.screenSpaceCords().y.toString() + "%";
+		obj1.style.width = player2.physicsObject.dim.x.toString() + "%";
+		obj1.style.height = player2.physicsObject.dim.y.toString() + "%";
 
-	document.getElementById("obj2").style.left = ball.physicsObject.screenSpaceCords().x.toString() + "%";
-	document.getElementById("obj2").style.top = ball.physicsObject.screenSpaceCords().y.toString() + "%";
-	document.getElementById("obj2").style.width = ball.physicsObject.dim.x.toString() + "%";
-	document.getElementById("obj2").style.height = ball.physicsObject.dim.y.toString() + "%";
+		obj2.style.left = ball.physicsObject.screenSpaceCords().x.toString() + "%";
+		obj2.style.top = ball.physicsObject.screenSpaceCords().y.toString() + "%";
+		obj2.style.width = ball.physicsObject.dim.x.toString() + "%";
+		obj2.style.height = ball.physicsObject.dim.y.toString() + "%";
 
-	document.getElementById("s1").innerText = score1.toString();
-	document.getElementById("s2").innerText = score2.toString();
+		s1.innerText = score1.toString();
+		s2.innerText = score2.toString();
+	}
 }
 
 document.body.addEventListener("keydown", keyDown);
