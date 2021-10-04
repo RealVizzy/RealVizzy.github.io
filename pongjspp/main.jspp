@@ -10,9 +10,14 @@ window.location.search.slice(1).split("&").forEach(void (string item) {
 final int TICKS_PER_SECOND = +(string)(params["ticks"] ?? "60");
 final int SPEED = +(string)(params["speed"] ?? "90");
 final int TIME = +(string)(params["time"] ?? "1");
+
 final bool AI = !params.contains("noai");
+final bool SCORE = !params.contains("noscore");
 final bool RAINBOW = params.contains("r");
 final bool CANVAS = params.contains("c");
+
+final int SCREENMULTIPLIER = CANVAS ? +(string)(params["width"] ?? "10") : 1;
+
 final double MAXBOUNCEANGLE = 3*Math.PI/12;
 
 bool towards = false;
@@ -237,10 +242,12 @@ if(!CANVAS) {
 		PhysicsObject obj = physicScene.objects[index] ?? new PhysicsObject();
 		frame += "<div class=\"" + (obj.bounce ? "ball" : "player") + "\" id=\"obj" + index.toString() + "\"></div>";
 	}
-	frame += "<div class=\"score\" id=\"s1\">" + score1.toString() + "</div>";
-	frame += "<div class=\"score\" id=\"s2\">" + score2.toString() + "</div>";
+	if(SCORE) {
+		frame += "<div class=\"score\" id=\"s1\">" + score1.toString() + "</div>";
+		frame += "<div class=\"score\" id=\"s2\">" + score2.toString() + "</div>";
+	}
 } else {
-	frame = "<img src=\"\" id=\"mainCanvas\"></img>";
+	frame = "<canvas id=\"mainCanvas\"></canvas>";
 }
 
 document.body.innerHTML = frame;
@@ -250,6 +257,8 @@ var obj1 = document.getElementById("obj1");
 var obj2 = document.getElementById("obj2");
 var s1 = document.getElementById("s1");
 var s2 = document.getElementById("s2");
+
+var mainCanvas = document.getElementById("mainCanvas");
 
 if(!CANVAS) {
 	if(RAINBOW) {
@@ -293,8 +302,39 @@ void tick() {
 		obj2.style.width = ball.physicsObject.dim.x.toString() + "%";
 		obj2.style.height = ball.physicsObject.dim.y.toString() + "%";
 
-		s1.innerText = score1.toString();
-		s2.innerText = score2.toString();
+		if(SCORE) {
+			s1.innerText = score1.toString();
+			s2.innerText = score2.toString();
+		}
+	} else {
+		var ctx = mainCanvas.getContext("2d");
+
+		mainCanvas.width = 100 * SCREENMULTIPLIER;
+		mainCanvas.height = 100 * SCREENMULTIPLIER;
+
+		ctx.fillStyle = "#FFFFFF";
+		ctx.fillRect(0,0,100 * SCREENMULTIPLIER,100 * SCREENMULTIPLIER);
+
+		ctx.fillStyle = "#000000";
+
+		ctx.fillRect(player1.physicsObject.screenSpaceCords().x * SCREENMULTIPLIER,
+			player1.physicsObject.screenSpaceCords().y * SCREENMULTIPLIER,
+			player1.physicsObject.dim.x * SCREENMULTIPLIER,
+			player1.physicsObject.dim.y * SCREENMULTIPLIER);
+		ctx.fillRect(player2.physicsObject.screenSpaceCords().x * SCREENMULTIPLIER,
+			player2.physicsObject.screenSpaceCords().y * SCREENMULTIPLIER,
+			player2.physicsObject.dim.x * SCREENMULTIPLIER,
+			player2.physicsObject.dim.y * SCREENMULTIPLIER);
+		ctx.fillRect(ball.physicsObject.screenSpaceCords().x * SCREENMULTIPLIER,
+			ball.physicsObject.screenSpaceCords().y * SCREENMULTIPLIER,
+			ball.physicsObject.dim.x * SCREENMULTIPLIER,
+			ball.physicsObject.dim.y * SCREENMULTIPLIER);
+		
+		if(SCORE) {
+			ctx.font = '48px serif';
+			ctx.fillText(score1.toString(), 20 * SCREENMULTIPLIER, 10 * SCREENMULTIPLIER);
+			ctx.fillText(score2.toString(), 80 * SCREENMULTIPLIER, 10 * SCREENMULTIPLIER);
+		}
 	}
 }
 

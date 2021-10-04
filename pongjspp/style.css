@@ -65,18 +65,18 @@ html {
 body {
 	height: 100%;
 	aspect-ratio: 1/1;
-	background-color: black;
+	background-color: white;
 	display: block;
 }
 .player,
 .ball {
-	background-color: white;
+	background-color: black;
 }
 .ball {
 	border-radius: 50%;
 }
 .score {
-	color: white;
+	color: black;
 	background: none !important;
 	font-size: 5vh;
 	top: 10%;
@@ -91,4 +91,8 @@ body {
 	animation-name: rainbow;
 	animation-duration: 4s;
 	animation-iteration-count: infinite;
+}
+canvas {
+	height: 100%;
+	aspect-ratio: 1/1;
 }
