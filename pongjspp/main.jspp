@@ -34,8 +34,10 @@ class PhysicsObject {
 	public Vec2 pos = new Vec2(0,0);
 
 	public Vec2 dim = new Vec2(2.5d,10d);
+	public Vec2 halfDim = new Vec2(1.25d,5d);
 
 	public Vec2 vel = new Vec2(0d,0d);
+	public Vec2 tickVel = new Vec2(0d,0d);
 
 	public bool bounce = false;
 
@@ -45,6 +47,9 @@ class PhysicsObject {
 
 		this.dim.x = w;
 		this.dim.y = h;
+
+		this.halfDim.x = w / 2;
+		this.halfDim.y = h / 2;
 	}
 
 	public PhysicsObject(double x, double y, double w, double h, bool bounce) {
@@ -54,6 +59,9 @@ class PhysicsObject {
 		this.dim.x = w;
 		this.dim.y = h;
 
+		this.halfDim.x = w / 2;
+		this.halfDim.y = h / 2;
+
 		this.bounce = bounce;
 	}
 	
@@ -61,9 +69,25 @@ class PhysicsObject {
 
 	public Vec2 screenSpaceCords() {
 		Vec2 outVec2 = new Vec2(0,0);
-		outVec2.x = this.pos.x + 50d - this.dim.x / 2;
-		outVec2.y = this.pos.y + 50d - this.dim.y / 2;
+		outVec2.x = this.pos.x + 50d - this.halfDim.x;
+		outVec2.y = this.pos.y + 50d - this.halfDim.y;
 		return outVec2;
+	}
+
+	public void setVel(Vec2 vel) {
+		this.vel = vel;
+		this.tickVel.x = vel.x / TICKS_PER_SECOND;
+		this.tickVel.y = vel.y / TICKS_PER_SECOND;
+	}
+
+	public void setVelX(double vel) {
+		this.vel.x = vel;
+		this.tickVel.x = vel / TICKS_PER_SECOND;
+	}
+
+	public void setVelY(double vel) {
+		this.vel.y = vel;
+		this.tickVel.y = vel / TICKS_PER_SECOND;
 	}
 }
 
@@ -83,17 +107,17 @@ class PhysicScene {
 			for(int index2 in this.objects) {
 				if(index1 != index2) {
 					PhysicsObject item = this.objects[index2] ?? new PhysicsObject();
-					if(Math.abs((head.pos.x + head.vel.x / TICKS_PER_SECOND) - (item.pos.x + item.vel.x / TICKS_PER_SECOND)) < (head.dim.x / 2 + item.dim.x / 2)
-					&& Math.abs((head.pos.y + head.vel.y / TICKS_PER_SECOND) - (item.pos.y + item.vel.y / TICKS_PER_SECOND)) < (head.dim.y / 2 + item.dim.y / 2)) {
+					if(Math.abs((head.pos.x + head.tickVel.x) - (item.pos.x + item.tickVel.x)) < (head.halfDim.x + item.halfDim.x)
+					&& Math.abs((head.pos.y + head.tickVel.y) - (item.pos.y + item.tickVel.y)) < (head.halfDim.y + item.halfDim.y)) {
 						if(head.bounce) {
-							double relativeIntersectY = ((item.pos.y + item.vel.y / TICKS_PER_SECOND) + (item.dim.y/2)) - (head.pos.y + head.vel.y / TICKS_PER_SECOND);
-							double normalizedRelativeIntersectionY = (relativeIntersectY - (item.dim.y/2))/(item.dim.y/2);
+							double relativeIntersectY = ((item.pos.y + item.tickVel.y) + (item.halfDim.y)) - (head.pos.y + head.tickVel.y);
+							double normalizedRelativeIntersectionY = (relativeIntersectY - (item.halfDim.y))/(item.halfDim.y);
 							double bounceAngle = (normalizedRelativeIntersectionY * MAXBOUNCEANGLE);
 
 							towards = !towards;
 
-							head.vel.x = (towards ? -1 : 1)*SPEED*Math.cos(bounceAngle);
-							head.vel.y = SPEED*-Math.sin(bounceAngle);
+							head.setVelX((towards ? -1 : 1)*SPEED*Math.cos(bounceAngle));
+							head.setVelY(SPEED*-Math.sin(bounceAngle));
 						} else {
 							continue main;
 						}
@@ -101,11 +125,11 @@ class PhysicScene {
 				}
 			}
 
-			head.pos.x = head.pos.x + head.vel.x / TICKS_PER_SECOND;
+			head.pos.x = head.pos.x + head.tickVel.x;
 
-			if (head.pos.y - head.dim.y / 2 + head.vel.y / TICKS_PER_SECOND > -50
-			&& head.pos.y + head.dim.y / 2 + head.vel.y / TICKS_PER_SECOND < 50) {
-				head.pos.y = head.pos.y + head.vel.y / TICKS_PER_SECOND;
+			if (head.pos.y - head.halfDim.y + head.tickVel.y > -50
+			&& head.pos.y + head.halfDim.y + head.tickVel.y < 50) {
+				head.pos.y = head.pos.y + head.tickVel.y;
 			}
 		}
 	}
@@ -128,16 +152,16 @@ class Ball {
 	}
 
 	public void reset() {
-		physicsObject.vel.x = ((towards ? 1 : 0) - 0.5) * SPEED;
-		physicsObject.vel.y = (Math.floor(Math.random() * 2) - 0.5) * SPEED;
+		physicsObject.setVelX(((towards ? 1 : 0) - 0.5) * SPEED);
+		physicsObject.setVelY((Math.floor(Math.random() * 2) - 0.5) * SPEED);
 
 		this.physicsObject.pos.x = 0;
 		this.physicsObject.pos.y = 0;
 	}
 
 	public void tick() {
-		if(this.physicsObject.pos.x + this.physicsObject.dim.x / 2 + this.physicsObject.vel.x / TICKS_PER_SECOND > 50
-		|| this.physicsObject.pos.x - this.physicsObject.dim.x / 2 + this.physicsObject.vel.x / TICKS_PER_SECOND < -50) {
+		if(this.physicsObject.pos.x + this.physicsObject.halfDim.x + this.physicsObject.tickVel.x > 50
+		|| this.physicsObject.pos.x - this.physicsObject.halfDim.x + this.physicsObject.tickVel.x < -50) {
 			this.reset();
 			if (towards) {
 				score2++;
@@ -147,9 +171,9 @@ class Ball {
 			towards = !towards;
 		}
 
-		if(this.physicsObject.pos.y + this.physicsObject.dim.y / 2 + this.physicsObject.vel.y / TICKS_PER_SECOND > 50
-		|| this.physicsObject.pos.y - this.physicsObject.dim.y / 2 + this.physicsObject.vel.y / TICKS_PER_SECOND < -50) {
-			this.physicsObject.vel.y = this.physicsObject.vel.y * -1;
+		if(this.physicsObject.pos.y + this.physicsObject.halfDim.y + this.physicsObject.tickVel.y > 50
+		|| this.physicsObject.pos.y - this.physicsObject.halfDim.y + this.physicsObject.tickVel.y < -50) {
+			this.physicsObject.setVelY(this.physicsObject.vel.y * -1);
 		}
 	}
 }
@@ -163,19 +187,19 @@ PhysicScene physicScene = new PhysicScene(player1.physicsObject, player2.physics
 void keyDown(external event) {
 	switch (event.key.toLowerCase()) {
 		case "arrowup":
-			player1.physicsObject.vel.y = -SPEED;
+			player1.physicsObject.setVelY(-SPEED);
 			break;
 		case "arrowdown":
-			player1.physicsObject.vel.y = SPEED;
+			player1.physicsObject.setVelY(SPEED);
 			break;
 		case "w":
 			if(!AI) {
-				player2.physicsObject.vel.y = -SPEED;
+				player2.physicsObject.setVelY(-SPEED);
 			}
 			break;
 		case "s":
 			if(!AI) {
-				player2.physicsObject.vel.y = SPEED;
+				player2.physicsObject.setVelY(SPEED);
 			}
 			break;
 	}
@@ -185,22 +209,22 @@ void keyUp(external event) {
 	switch (event.key.toLowerCase()) {
 		case "arrowup":
 			if(player1.physicsObject.vel.y < 0) {
-				player1.physicsObject.vel.y = 0;
+				player1.physicsObject.setVelY(0);
 			}
 			break;
 		case "arrowdown":
 			if(player1.physicsObject.vel.y > 0) {
-				player1.physicsObject.vel.y = 0;
+				player1.physicsObject.setVelY(0);
 			}
 			break;
 		case "w":
 			if(player2.physicsObject.vel.y < 0 && !AI) {
-				player2.physicsObject.vel.y = 0;
+				player2.physicsObject.setVelY(0);
 			}
 			break;
 		case "s":
 			if(player2.physicsObject.vel.y > 0 && !AI) {
-				player2.physicsObject.vel.y = 0;
+				player2.physicsObject.setVelY(0);
 			}
 			break;
 	}
@@ -239,14 +263,14 @@ if(!CANVAS) {
 
 void tick() {
 	if (AI) {
-		if ((Math.abs(ball.physicsObject.pos.y - player2.physicsObject.pos.y) >  player2.physicsObject.dim.y / 2)) {
+		if ((Math.abs(ball.physicsObject.pos.y - player2.physicsObject.pos.y) >  player2.physicsObject.halfDim.y)) {
 			if (ball.physicsObject.pos.y > player2.physicsObject.pos.y) {
-				player2.physicsObject.vel.y = SPEED;
+				player2.physicsObject.setVelY(SPEED);
 			} else if (ball.physicsObject.pos.y < player2.physicsObject.pos.y) {
-				player2.physicsObject.vel.y = -SPEED;
+				player2.physicsObject.setVelY(-SPEED);
 			}
 		} else {
-			player2.physicsObject.vel.y = 0;
+			player2.physicsObject.setVelY(0);
 		}
 	}
 
