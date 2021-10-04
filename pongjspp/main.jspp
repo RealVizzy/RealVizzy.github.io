@@ -9,6 +9,7 @@ window.location.search.slice(1).split("&").forEach(void (string item) {
 
 final int TICKS_PER_SECOND = +(string)(params["ticks"] ?? "60");
 final int SPEED = +(string)(params["speed"] ?? "90");
+final int TIME = +(string)(params["time"] ?? "1");
 final bool AI = !params.contains("noai");
 final bool RAINBOW = params.contains("r");
 final double MAXBOUNCEANGLE = 3*Math.PI/12;
@@ -259,4 +260,4 @@ void tick() {
 document.body.addEventListener("keydown", keyDown);
 document.body.addEventListener("keyup", keyUp);
 
-setInterval(tick, 1000 / TICKS_PER_SECOND);
+setInterval(tick, 1000 * TIME / TICKS_PER_SECOND);
