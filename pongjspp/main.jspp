@@ -1,11 +1,16 @@
 import System;
 import Externals.DOM;
+external console, process;
 
 Dictionary<string> params = {};
 
-window.location.search.slice(1).split("&").forEach(void (string item) {
-	params[(string)(item.split("=")[0] ?? "n")] = item.split("=")[1] ?? "";
-});
+final bool node = typeof window === "undefined";
+
+if(!node) {
+	window.location.search.slice(1).split("&").forEach(void (string item) {
+		params[(string)(item.split("=")[0] ?? "n")] = item.split("=")[1] ?? "";
+	});
+}
 
 final int TICKS_PER_SECOND = +(string)(params["ticks"] ?? "60");
 final int SPEED = +(string)(params["speed"] ?? "90");
@@ -183,14 +188,42 @@ class Ball {
 	}
 }
 
+class AsciiCanvas {
+	public string canvas = "";
+
+	public AsciiCanvas() {
+		this.clear();
+	}
+
+	public void clear() {
+		this.canvas = ("-".repeat(100) + "\n").repeat(100);
+	}
+
+	public void setChar(int index, string character) {
+		this.canvas = this.canvas.substring(0, index) + character.toString() + this.canvas.substring(index + 1);
+	}
+
+	public void drawChar(int x, int y, string character) {
+		this.setChar(99*y+2*y+x, character);
+	}
+
+	public void drawRect(int x, int y, int w, int h) {
+		for (int ih = 0; ih < h; ++ih) {
+			for (int iw = 0; iw < w; ++iw) {
+				this.drawChar(x + iw, y + ih, "#");
+			}
+		}
+	}
+}
+
 Player player1 = new Player(-40d);
 Player player2 = new Player(40d);
 Ball ball = new Ball();
 
 PhysicScene physicScene = new PhysicScene(player1.physicsObject, player2.physicsObject, ball.physicsObject);
 
-void keyDown(external event) {
-	switch (event.key.toLowerCase()) {
+void keyDown(string key) {
+	switch (key.toLowerCase()) {
 		case "arrowup":
 			player1.physicsObject.setVelY(-SPEED);
 			break;
@@ -210,8 +243,8 @@ void keyDown(external event) {
 	}
 }
 
-void keyUp(external event) {
-	switch (event.key.toLowerCase()) {
+void keyUp(string key) {
+	switch (key.toLowerCase()) {
 		case "arrowup":
 			if(player1.physicsObject.vel.y < 0) {
 				player1.physicsObject.setVelY(0);
@@ -237,28 +270,42 @@ void keyUp(external event) {
 
 string frame = "";
 
-if(!CANVAS) {
-	for(int index in physicScene.objects) {
-		PhysicsObject obj = physicScene.objects[index] ?? new PhysicsObject();
-		frame += "<div class=\"" + (obj.bounce ? "ball" : "player") + "\" id=\"obj" + index.toString() + "\"></div>";
+var obj0;
+var obj1;
+var obj2;
+var s1;
+var s2;
+var asciiCanvasDiv;
+var mainCanvas;
+
+if(!node) {
+	if(!CANVAS) {
+		for(int index in physicScene.objects) {
+			PhysicsObject obj = physicScene.objects[index] ?? new PhysicsObject();
+			frame += "<div class=\"" + (obj.bounce ? "ball" : "player") + "\" id=\"obj" + index.toString() + "\"></div>";
+		}
+		if(SCORE) {
+			frame += "<div class=\"score\" id=\"s1\">" + score1.toString() + "</div>";
+			frame += "<div class=\"score\" id=\"s2\">" + score2.toString() + "</div>";
+		}
+	} else {
+		frame = "<canvas id=\"mainCanvas\"></canvas>";
 	}
-	if(SCORE) {
-		frame += "<div class=\"score\" id=\"s1\">" + score1.toString() + "</div>";
-		frame += "<div class=\"score\" id=\"s2\">" + score2.toString() + "</div>";
-	}
-} else {
-	frame = "<canvas id=\"mainCanvas\"></canvas>";
+
+	frame += "<div id=\"asciiCanvas\"></div>";
+
+	document.body.innerHTML = frame;
+
+	obj0 = document.getElementById("obj0");
+	obj1 = document.getElementById("obj1");
+	obj2 = document.getElementById("obj2");
+	s1 = document.getElementById("s1");
+	s2 = document.getElementById("s2");
+
+	asciiCanvasDiv = document.getElementById("asciiCanvas");
+
+	mainCanvas = document.getElementById("mainCanvas");
 }
-
-document.body.innerHTML = frame;
-
-var obj0 = document.getElementById("obj0");
-var obj1 = document.getElementById("obj1");
-var obj2 = document.getElementById("obj2");
-var s1 = document.getElementById("s1");
-var s2 = document.getElementById("s2");
-
-var mainCanvas = document.getElementById("mainCanvas");
 
 if(!CANVAS) {
 	if(RAINBOW) {
@@ -270,10 +317,65 @@ if(!CANVAS) {
 	}
 }
 
+void drawCSS() {
+	obj0.style.left = player1.physicsObject.screenSpaceCords().x.toString() + "%";
+	obj0.style.top = player1.physicsObject.screenSpaceCords().y.toString() + "%";
+	obj0.style.width = player1.physicsObject.dim.x.toString() + "%";
+	obj0.style.height = player1.physicsObject.dim.y.toString() + "%";
+		
+	obj1.style.left = player2.physicsObject.screenSpaceCords().x.toString() + "%";
+	obj1.style.top = player2.physicsObject.screenSpaceCords().y.toString() + "%";
+	obj1.style.width = player2.physicsObject.dim.x.toString() + "%";
+	obj1.style.height = player2.physicsObject.dim.y.toString() + "%";
+
+	obj2.style.left = ball.physicsObject.screenSpaceCords().x.toString() + "%";
+	obj2.style.top = ball.physicsObject.screenSpaceCords().y.toString() + "%";
+	obj2.style.width = ball.physicsObject.dim.x.toString() + "%";
+	obj2.style.height = ball.physicsObject.dim.y.toString() + "%";
+
+	if(SCORE) {
+		s1.innerText = score1.toString();
+		s2.innerText = score2.toString();
+	}
+}
+
+void drawCanvas() {
+	var ctx = mainCanvas.getContext("2d");
+
+	mainCanvas.width = 100 * SCREENMULTIPLIER;
+	mainCanvas.height = 100 * SCREENMULTIPLIER;
+
+	ctx.fillStyle = "#FFFFFF";
+	ctx.fillRect(0,0,100 * SCREENMULTIPLIER,100 * SCREENMULTIPLIER);
+
+	ctx.fillStyle = "#000000";
+
+	ctx.fillRect(player1.physicsObject.screenSpaceCords().x * SCREENMULTIPLIER,
+		player1.physicsObject.screenSpaceCords().y * SCREENMULTIPLIER,
+		player1.physicsObject.dim.x * SCREENMULTIPLIER,
+		player1.physicsObject.dim.y * SCREENMULTIPLIER);
+	ctx.fillRect(player2.physicsObject.screenSpaceCords().x * SCREENMULTIPLIER,
+		player2.physicsObject.screenSpaceCords().y * SCREENMULTIPLIER,
+		player2.physicsObject.dim.x * SCREENMULTIPLIER,
+		player2.physicsObject.dim.y * SCREENMULTIPLIER);
+	ctx.fillRect(ball.physicsObject.screenSpaceCords().x * SCREENMULTIPLIER,
+		ball.physicsObject.screenSpaceCords().y * SCREENMULTIPLIER,
+		ball.physicsObject.dim.x * SCREENMULTIPLIER,
+		ball.physicsObject.dim.y * SCREENMULTIPLIER);
+		
+	if(SCORE) {
+		ctx.font = '48px serif';
+		ctx.fillText(score1.toString(), 20 * SCREENMULTIPLIER, 10 * SCREENMULTIPLIER);
+		ctx.fillText(score2.toString(), 80 * SCREENMULTIPLIER, 10 * SCREENMULTIPLIER);
+	}
+}
+
+AsciiCanvas asciiCanvas = new AsciiCanvas();
+
 void tick() {
-	if (AI) {
-		if ((Math.abs(ball.physicsObject.pos.y - player2.physicsObject.pos.y) >  player2.physicsObject.halfDim.y)) {
-			if (ball.physicsObject.pos.y > player2.physicsObject.pos.y) {
+	if(AI) {
+		if((Math.abs(ball.physicsObject.pos.y - player2.physicsObject.pos.y) >  player2.physicsObject.halfDim.y)) {
+			if(ball.physicsObject.pos.y > player2.physicsObject.pos.y) {
 				player2.physicsObject.setVelY(SPEED);
 			} else if (ball.physicsObject.pos.y < player2.physicsObject.pos.y) {
 				player2.physicsObject.setVelY(-SPEED);
@@ -286,59 +388,56 @@ void tick() {
 	physicScene.tick();
 	ball.tick();
 
-	if(!CANVAS) {
-		obj0.style.left = player1.physicsObject.screenSpaceCords().x.toString() + "%";
-		obj0.style.top = player1.physicsObject.screenSpaceCords().y.toString() + "%";
-		obj0.style.width = player1.physicsObject.dim.x.toString() + "%";
-		obj0.style.height = player1.physicsObject.dim.y.toString() + "%";
-		
-		obj1.style.left = player2.physicsObject.screenSpaceCords().x.toString() + "%";
-		obj1.style.top = player2.physicsObject.screenSpaceCords().y.toString() + "%";
-		obj1.style.width = player2.physicsObject.dim.x.toString() + "%";
-		obj1.style.height = player2.physicsObject.dim.y.toString() + "%";
-
-		obj2.style.left = ball.physicsObject.screenSpaceCords().x.toString() + "%";
-		obj2.style.top = ball.physicsObject.screenSpaceCords().y.toString() + "%";
-		obj2.style.width = ball.physicsObject.dim.x.toString() + "%";
-		obj2.style.height = ball.physicsObject.dim.y.toString() + "%";
-
-		if(SCORE) {
-			s1.innerText = score1.toString();
-			s2.innerText = score2.toString();
+	if(!node) {
+		if(!CANVAS) {
+			drawCSS();
+		} else {
+			drawCanvas();
 		}
 	} else {
-		var ctx = mainCanvas.getContext("2d");
+		console.clear();
+		asciiCanvas.clear();
+		asciiCanvas.drawRect((int)player1.physicsObject.screenSpaceCords().x,
+			(int)player1.physicsObject.screenSpaceCords().y,
+			(int)player1.physicsObject.dim.x,
+			(int)player1.physicsObject.dim.y);
+		asciiCanvas.drawRect((int)player2.physicsObject.screenSpaceCords().x,
+			(int)player2.physicsObject.screenSpaceCords().y,
+			(int)player2.physicsObject.dim.x,
+			(int)player2.physicsObject.dim.y);
+		asciiCanvas.drawRect((int)ball.physicsObject.screenSpaceCords().x,
+			(int)ball.physicsObject.screenSpaceCords().y,
+			(int)ball.physicsObject.dim.x,
+			(int)ball.physicsObject.dim.y);
+		asciiCanvas.drawChar(20, 10, score1.toString().slice(0,1));
+		asciiCanvas.drawChar(80, 10, score2.toString().slice(0,1));
+		console.log(asciiCanvas.canvas);
 
-		mainCanvas.width = 100 * SCREENMULTIPLIER;
-		mainCanvas.height = 100 * SCREENMULTIPLIER;
-
-		ctx.fillStyle = "#FFFFFF";
-		ctx.fillRect(0,0,100 * SCREENMULTIPLIER,100 * SCREENMULTIPLIER);
-
-		ctx.fillStyle = "#000000";
-
-		ctx.fillRect(player1.physicsObject.screenSpaceCords().x * SCREENMULTIPLIER,
-			player1.physicsObject.screenSpaceCords().y * SCREENMULTIPLIER,
-			player1.physicsObject.dim.x * SCREENMULTIPLIER,
-			player1.physicsObject.dim.y * SCREENMULTIPLIER);
-		ctx.fillRect(player2.physicsObject.screenSpaceCords().x * SCREENMULTIPLIER,
-			player2.physicsObject.screenSpaceCords().y * SCREENMULTIPLIER,
-			player2.physicsObject.dim.x * SCREENMULTIPLIER,
-			player2.physicsObject.dim.y * SCREENMULTIPLIER);
-		ctx.fillRect(ball.physicsObject.screenSpaceCords().x * SCREENMULTIPLIER,
-			ball.physicsObject.screenSpaceCords().y * SCREENMULTIPLIER,
-			ball.physicsObject.dim.x * SCREENMULTIPLIER,
-			ball.physicsObject.dim.y * SCREENMULTIPLIER);
-		
-		if(SCORE) {
-			ctx.font = '48px serif';
-			ctx.fillText(score1.toString(), 20 * SCREENMULTIPLIER, 10 * SCREENMULTIPLIER);
-			ctx.fillText(score2.toString(), 80 * SCREENMULTIPLIER, 10 * SCREENMULTIPLIER);
-		}
+		player1.physicsObject.setVelY(0);
 	}
 }
 
-document.body.addEventListener("keydown", keyDown);
-document.body.addEventListener("keyup", keyUp);
+if(!node) {
+	document.body.addEventListener("keydown", function(external event){keyDown(event.key);});
+	document.body.addEventListener("keyup", function(external event){keyUp(event.key);});
+} else {
+	var stdin = process.stdin;
+	stdin.setRawMode( true );
+	stdin.resume();
+	stdin.setEncoding('utf8');
+	stdin.on( 'data', function( string key ){
+		switch (key) {
+			case "\u001b[A":
+				keyDown("arrowup");
+				break;
+			case "\u001b[B":
+				keyDown("arrowdown");
+				break;
+			default:
+				keyDown(key);
+				break;
+		}
+	});
+}
 
 setInterval(tick, 1000 * TIME / TICKS_PER_SECOND);
