@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/values-common-editor/static/css/main.a5e08ac7.chunk.css",
+    "main.js": "/values-common-editor/static/js/main.86e6df78.chunk.js",
+    "main.js.map": "/values-common-editor/static/js/main.86e6df78.chunk.js.map",
+    "runtime-main.js": "/values-common-editor/static/js/runtime-main.0a1faebb.js",
+    "runtime-main.js.map": "/values-common-editor/static/js/runtime-main.0a1faebb.js.map",
+    "static/js/2.b9609713.chunk.js": "/values-common-editor/static/js/2.b9609713.chunk.js",
+    "static/js/2.b9609713.chunk.js.map": "/values-common-editor/static/js/2.b9609713.chunk.js.map",
+    "static/js/3.5aa33d43.chunk.js": "/values-common-editor/static/js/3.5aa33d43.chunk.js",
+    "static/js/3.5aa33d43.chunk.js.map": "/values-common-editor/static/js/3.5aa33d43.chunk.js.map",
+    "index.html": "/values-common-editor/index.html",
+    "static/css/main.a5e08ac7.chunk.css.map": "/values-common-editor/static/css/main.a5e08ac7.chunk.css.map",
+    "static/js/2.b9609713.chunk.js.LICENSE.txt": "/values-common-editor/static/js/2.b9609713.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.0a1faebb.js",
+    "static/js/2.b9609713.chunk.js",
+    "static/css/main.a5e08ac7.chunk.css",
+    "static/js/main.86e6df78.chunk.js"
+  ]
+}
